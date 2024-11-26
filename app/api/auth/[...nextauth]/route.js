@@ -15,11 +15,11 @@ const authOptions = {
       },
       async authorize(credentials) {
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: credentials?.email },
         });
 
         if (!user) {
-          throw new Error("Email not registered");
+          throw new Error("Email non enregistré");
         }
 
         const isPasswordValid = await bcrypt.compare(
@@ -28,13 +28,16 @@ const authOptions = {
         );
 
         if (!isPasswordValid) {
-          throw new Error("Invalid password");
+          throw new Error("Mot de passe invalide");
         }
 
         return { id: user.id, name: user.name, email: user.email };
       },
     }),
   ],
+  pages: {
+    signIn: "/login", // Redirection vers votre page personnalisée
+  },
   callbacks: {
     async session({ session, token }) {
       session.user.id = token.id;
@@ -51,5 +54,5 @@ const authOptions = {
   session: { strategy: "jwt" },
 };
 
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
+export const GET = NextAuth(authOptions);
+export const POST = NextAuth(authOptions);
