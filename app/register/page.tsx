@@ -7,21 +7,27 @@ export default function RegisterPage() {
     const name = formData.get("name") as string;
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-
-    const response = await fetch("/api/register", {
+  
+    console.log({ name, email, password }); // Vérifie si les données arrivent ici
+  
+    const response = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, password }),
     });
-
+  
+    console.log("Response status:", response.status); // Vérifie la réponse de l'API
+  
     if (response.ok) {
       alert("Inscription réussie. Vous pouvez maintenant vous connecter !");
-      window.location.href = "/login"; // Redirige vers la page de connexion
+      window.location.href = "/login";
     } else {
       const errorData = await response.json();
+      console.log("Erreur de l'API:", errorData);
       alert(`Erreur : ${errorData.error}`);
     }
   }
+  
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
