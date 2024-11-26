@@ -1,6 +1,7 @@
 "use client";
 
-import { SessionProvider, useSession } from "next-auth/react";
+import { SessionProvider } from "next-auth/react";
+import Header from "./components/Header";
 import "./globals.css";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -8,24 +9,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <SessionProvider>
-          <AuthStatus />
-          {children}
+          <Header />
+          <main className="mt-4">{children}</main>
         </SessionProvider>
       </body>
     </html>
-  );
-}
-
-function AuthStatus() {
-  const { data: session, status } = useSession();
-
-  if (status === "loading") {
-    return <p>Chargement...</p>;
-  }
-
-  return (
-    <div className="p-4 bg-gray-200 text-center">
-      {session ? "Tu es connecté" : "Tu n'es pas connecté"}
-    </div>
   );
 }
