@@ -1,0 +1,16 @@
+datasource db {
+  provider = "sqlite" // Changez ici si vous utilisez PostgreSQL ou MySQL
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  name     String?  
+  email    String   @unique
+  password String
+  createdAt DateTime @default(now())
+}
