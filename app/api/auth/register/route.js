@@ -1,3 +1,4 @@
+// app/api/register/route.js
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 
