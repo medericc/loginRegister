@@ -9,10 +9,7 @@ export default function Header() {
 
   return (
     <header className="bg-gray-800 text-white py-4 px-8 flex items-center justify-between">
-      {/* Titre au centre */}
       <h1 className="text-2xl font-bold flex-1 text-center">Chretien</h1>
-
-      {/* Connexion/Inscription ou Nom d'utilisateur */}
       <div className="flex items-center gap-4">
         {session ? (
           <>
