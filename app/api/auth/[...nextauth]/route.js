@@ -20,7 +20,7 @@ const authOptions = {
         });
 
         if (!user) {
-          throw new Error("Email non enregistré");
+          throw new Error("Email et/ou mot de passe invalides");
         }
 
         const isPasswordValid = await bcrypt.compare(
@@ -29,7 +29,7 @@ const authOptions = {
         );
 
         if (!isPasswordValid) {
-          throw new Error("Mot de passe invalide");
+          throw new Error("Email et/ou mot de passe invalides");
         }
 
         return { id: user.id, name: user.name, email: user.email };
