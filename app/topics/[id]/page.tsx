@@ -126,15 +126,20 @@ function ReplyForm({ topicId }: { topicId: number }) {
 
 // Fonction pour liker une réponse
 async function likeReply(replyId: number) {
-  try {
-    const response = await fetch(`/api/replies/${replyId}/like`, { method: "POST" });
-
-    if (response.ok) {
-      window.location.reload(); // Recharge la page pour mettre à jour les likes
-    } else {
-      console.error("Erreur lors du like :", response.status);
+    try {
+      const response = await fetch(`/api/replies/${replyId}`, {
+        method: "POST",
+      });
+  
+      if (response.ok) {
+        window.location.reload(); // Recharge la page pour mettre à jour les likes
+      } else {
+        const errorData = await response.json();
+        console.error("Erreur lors du like :", errorData.error);
+        alert(errorData.error); // Affiche l'erreur à l'utilisateur
+      }
+    } catch (error) {
+      console.error("Erreur réseau :", error);
     }
-  } catch (error) {
-    console.error("Erreur réseau :", error);
   }
-}
+  

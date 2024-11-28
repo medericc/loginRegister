@@ -14,11 +14,12 @@ model User {
   password  String
   createdAt DateTime @default(now())
   replies   Reply[]
+  likes     Like[]   // Relation avec les likes
 }
 
 model Category {
   id        Int      @id @default(autoincrement())
-  name      String  
+  name      String
   topics    Topic[]
 }
 
@@ -37,8 +38,21 @@ model Reply {
   content   String
   createdAt DateTime @default(now())
   topicId   Int
-  topic     Topic @relation(fields: [topicId], references: [id])
+  topic     Topic    @relation(fields: [topicId], references: [id])
   userId    Int
-  user      User @relation(fields: [userId], references: [id])
-  likes     Int      @default(0) // Nombre de likes pour chaque réponse
+  user      User     @relation(fields: [userId], references: [id])
+  likes     Int      @default(0) // Champ numérique pour compter les likes
+  likeRelations Like[] // Relation avec le modèle Like
+}
+
+
+model Like {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+  replyId   Int
+  reply     Reply   @relation(fields: [replyId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, replyId]) // Empêche les doublons : un utilisateur ne peut liker une réponse qu'une seule fois
 }
