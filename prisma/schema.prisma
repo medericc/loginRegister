@@ -1,5 +1,5 @@
 datasource db {
-  provider = "sqlite" // Changez ici si vous utilisez PostgreSQL ou MySQL
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -8,9 +8,37 @@ generator client {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
-  name     String?  @unique
-  email    String   @unique
-  password String
+  id        Int      @id @default(autoincrement())
+  name      String?  @unique
+  email     String   @unique
+  password  String
   createdAt DateTime @default(now())
+  replies   Reply[]
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String  
+  topics    Topic[]
+}
+
+model Topic {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  replies    Reply[]
+}
+
+model Reply {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  topicId   Int
+  topic     Topic @relation(fields: [topicId], references: [id])
+  userId    Int
+  user      User @relation(fields: [userId], references: [id])
+  likes     Int      @default(0) // Nombre de likes pour chaque réponse
 }
