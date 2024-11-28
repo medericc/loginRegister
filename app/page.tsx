@@ -1,5 +1,5 @@
 "use client";
-
+import { useRouter } from "next/navigation";
 import { useState, useEffect, FormEvent, useRef } from "react";
 import { useSession, signIn } from "next-auth/react";
 
@@ -8,17 +8,11 @@ interface Category {
   name: string;
 }
 
-interface Topic {
-  id: number;
-  title: string;
-  content: string;
-  categoryId: number;
-}
 
 export default function HomePage() {
+  const router = useRouter(); 
   const [categories, setCategories] = useState<Category[]>([]); // Catégories disponibles
-  const [topics, setTopics] = useState<Topic[]>([]); // Topics affichés
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null); // Catégorie sélectionnée
+ const [selectedCategory, setSelectedCategory] = useState<number | null>(null); // Catégorie sélectionnée
   const [showModal, setShowModal] = useState(false); // Modale pour ajouter un topic
   const [showAuthModal, setShowAuthModal] = useState(false); // Modale pour l'authentification
   const addTopicModalRef = useRef<HTMLFormElement>(null); // Référence de la modale d'ajout
@@ -36,17 +30,11 @@ export default function HomePage() {
     fetchCategories();
   }, []);
 
-  // Récupérer les topics d'une catégorie
-  const fetchTopicsByCategory = async (categoryId: number) => {
-    const res = await fetch(`/api/topics?categoryId=${categoryId}`);
-    const data: Topic[] = await res.json();
-    setTopics(data);
-  };
+
 
   // Gestion du clic sur une catégorie
   const handleCategoryClick = (categoryId: number) => {
-    setSelectedCategory(categoryId);
-    fetchTopicsByCategory(categoryId);
+    router.push(`/categories/${categoryId}`); // Rediriger vers la page avec l'ID
   };
 
   // Soumission du formulaire pour ajouter un topic
@@ -76,7 +64,6 @@ export default function HomePage() {
       alert("Topic ajouté !");
       setShowModal(false);
       form.reset();
-      fetchTopicsByCategory(selectedCategory); // Rafraîchir la liste des topics
     }
   };
   
@@ -106,46 +93,24 @@ export default function HomePage() {
       <div className="mt-4">
         <h2 className="text-lg font-bold">Catégories</h2>
         <div className="flex gap-4 mt-2">
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => handleCategoryClick(category.id)}
-              className={`px-4 py-2 rounded ${
-                selectedCategory === category.id
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200"
-              }`}
-            >
-              {category.name}
-            </button>
-          ))}
-        </div>
+  {categories.map((category) => (
+    <button
+      key={category.id}
+      onClick={() => handleCategoryClick(category.id)} // Redirection ici
+      className={`px-4 py-2 rounded ${
+        selectedCategory === category.id
+          ? "bg-blue-500 text-white"
+          : "bg-gray-200"
+      }`}
+    >
+      {category.name}
+    </button>
+  ))}
+</div>
+
       </div>
 
-      {/* Liste des topics */}
-      <div className="mt-8">
-        <h2 className="text-lg font-bold">
-          {selectedCategory
-            ? `Topics pour : ${
-                categories.find((c) => c.id === selectedCategory)?.name
-              }`
-            : "Tous les Topics"}
-        </h2>
-        {topics.length > 0 ? (
-          <ul className="mt-4">
-            {topics.map((topic) => (
-              <li key={topic.id} className="mb-4 border p-4 rounded">
-                <h3 className="text-xl font-bold">{topic.title}</h3>
-                <p className="text-gray-600">{topic.content}</p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="mt-4 text-gray-500">
-            Aucun topic disponible pour cette catégorie.
-          </p>
-        )}
-      </div>
+    
 
      {/* Modale pour ajouter un topic */}
      {showModal && (
