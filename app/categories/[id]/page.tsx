@@ -1,33 +1,31 @@
-// app/categories/[id]
 import { PrismaClient } from "@prisma/client";
+import Link from "next/link";
 
 const prisma = new PrismaClient();
 
-interface CategoryPageProps {
-  params: { id: string };
-}
+export default async function CategoryPage({ params }: { params: { id: string } }) {
+  const categoryId = parseInt(params.id, 10);
 
-export default async function CategoryPage({ params }: CategoryPageProps) {
-  const { id } = params;
-
-  // Fetch the category by ID, including associated topics
+  // Récupérer la catégorie et ses topics
   const category = await prisma.category.findUnique({
-    where: { id: parseInt(id, 10) },
-    include: { topics: true }, // Include related topics
+    where: { id: categoryId },
+    include: { topics: true },
   });
 
   if (!category) {
-    return <div>Catégorie non trouvée</div>;
+    return <div>Catégorie introuvable</div>;
   }
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold">{category.name}</h1>
-      <ul className="mt-4">
+      <h1 className="text-2xl font-bold mb-4">{category.name}</h1>
+      <ul>
         {category.topics.map((topic) => (
-          <li key={topic.id} className="p-2 border-b">
-            <h2 className="text-lg font-bold">{topic.title}</h2>
-            <p>{topic.content}</p>
+          <li key={topic.id} className="mb-2">
+            {/* Lien vers le topic */}
+            <Link href={`/topics/${topic.id}`} className="text-blue-500 hover:underline">
+              {topic.title}
+            </Link>
           </li>
         ))}
       </ul>
