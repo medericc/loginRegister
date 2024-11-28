@@ -20,13 +20,16 @@ interface Topic {
 }
 
 export default function TopicPage() {
-  const params = useParams(); // Récupère les paramètres dynamiques
-  const id = params?.id; // Assure-toi que params existe
+  const params = useParams();
+  const id = params?.id;
   const [topic, setTopic] = useState<Topic | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<"oldest" | "newest" | "mostLiked" | "leastLiked">(
+    "oldest"
+  );
 
   useEffect(() => {
-    if (!id) return; // Vérifie que l'ID est valide
+    if (!id) return;
     async function fetchTopic() {
       try {
         const response = await fetch(`/api/topics/${id}`);
@@ -45,6 +48,20 @@ export default function TopicPage() {
     fetchTopic();
   }, [id]);
 
+  const sortReplies = (replies: Topic["replies"]) => {
+    switch (sortBy) {
+      case "newest":
+        return [...replies].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      case "mostLiked":
+        return [...replies].sort((a, b) => b.likes - a.likes);
+      case "leastLiked":
+        return [...replies].sort((a, b) => a.likes - b.likes);
+      case "oldest":
+      default:
+        return [...replies].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    }
+  };
+
   if (loading) return <div>Chargement...</div>;
   if (!topic) return <div>Topic introuvable</div>;
 
@@ -61,8 +78,27 @@ export default function TopicPage() {
       <div className="mt-6">
         <h2 className="text-xl font-bold mb-4">Réponses</h2>
         <ReplyForm topicId={topic.id} />
+
+        {/* Menu déroulant pour le tri */}
+        <div className="mt-4 mb-4">
+          <label htmlFor="sort" className="block text-sm font-medium text-gray-700">
+            Trier par :
+          </label>
+          <select
+            id="sort"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as "oldest" | "newest" | "mostLiked" | "leastLiked")}
+          >
+            <option value="oldest">Plus vieux</option>
+            <option value="newest">Plus récent</option>
+            <option value="mostLiked">Plus liké</option>
+            <option value="leastLiked">Moins liké</option>
+          </select>
+        </div>
+
         <div className="mt-4">
-          {topic.replies.map((reply) => (
+          {sortReplies(topic.replies).map((reply) => (
             <div key={reply.id} className="border rounded p-4 mb-4">
               <p className="text-gray-700">{reply.content}</p>
               <p className="text-gray-500 text-sm">
@@ -126,20 +162,19 @@ function ReplyForm({ topicId }: { topicId: number }) {
 
 // Fonction pour liker une réponse
 async function likeReply(replyId: number) {
-    try {
-      const response = await fetch(`/api/replies/${replyId}`, {
-        method: "POST",
-      });
-  
-      if (response.ok) {
-        window.location.reload(); // Recharge la page pour mettre à jour les likes
-      } else {
-        const errorData = await response.json();
-        console.error("Erreur lors du like :", errorData.error);
-        alert(errorData.error); // Affiche l'erreur à l'utilisateur
-      }
-    } catch (error) {
-      console.error("Erreur réseau :", error);
+  try {
+    const response = await fetch(`/api/replies/${replyId}`, {
+      method: "POST",
+    });
+
+    if (response.ok) {
+      window.location.reload(); // Recharge la page pour mettre à jour les likes
+    } else {
+      const errorData = await response.json();
+      console.error("Erreur lors du like :", errorData.error);
+      alert(errorData.error); // Affiche l'erreur à l'utilisateur
     }
+  } catch (error) {
+    console.error("Erreur réseau :", error);
   }
-  
+}
